@@ -2,6 +2,7 @@
   "name": "api-rss",
   "version": "1.0.0",
   "description": "一些有用的 API",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

@@ -1,6 +1,6 @@
-const rss = require('./rss');
+import rss from './rss.js';
 
-module.exports = (router) => {
+export default (router) => {
   router.get("/", async (ctx) => {
     ctx.body = ```<!DOCTYPE html>
 <html lang="zh-CN">

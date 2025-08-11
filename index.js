@@ -1,8 +1,8 @@
-require("dotenv").config();
-const Koa = require("koa");
-const Router = require("koa-router");
-const routes = require("./api");
-const serverless = require("serverless-http");
+import "dotenv/config";
+import Koa from "koa";
+import Router from "koa-router";
+import routes from "./api/index.js";
+import serverless from "serverless-http";
 
 const app = new Koa();
 const router = new Router();
@@ -12,4 +12,4 @@ routes(router);
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-module.exports = serverless(app);
+export default serverless(app);

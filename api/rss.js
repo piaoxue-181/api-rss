@@ -2,9 +2,9 @@
  * 爬取RSS
  */
 
-const Parser = require('rss-parser');
-const axios = require('axios');
-const { get, set } = require("../utils/cacheData");
+import Parser from 'rss-parser';
+import axios from 'axios'; // 修改这里
+import cache from "../utils/cacheData.js";
 
 // axios 代理 fetch，支持超时
 const parser = new Parser({
@@ -12,7 +12,7 @@ const parser = new Parser({
     timeout: 5000,
   },
   customFetch: async (url, options) => {
-    const res = await axios.get(url, { timeout: 5000, responseType: 'text' });
+    const res = await axios.get(url, { timeout: 5000, responseType: 'text' }); // 修改这里
     return {
       ok: true,
       status: res.status,
@@ -32,10 +32,10 @@ function sortByGmtDate(items, dateField = 'date', ascending = true) {
   });
 }
 
-module.exports = (router) => {
+export default (router) => {
   router.get("/rss", async (ctx) => {
     const cacheKey = "rss_list_cache";
-    let data = await get(cacheKey);
+    let data = await cache.get(cacheKey);
     if (data) {
       ctx.body = data;
       return;
@@ -65,7 +65,7 @@ module.exports = (router) => {
     }
 
     let rss_list_new = sortByGmtDate(rss_list, 'date', false);
-    await set(cacheKey, rss_list_new);
+    await cache.set(cacheKey, rss_list_new);
     ctx.body = rss_list_new;
   });
 };
