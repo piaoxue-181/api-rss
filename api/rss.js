@@ -3,16 +3,12 @@
  */
 
 import Parser from 'rss-parser';
-import axios from 'axios'; // 修改这里
+import axios from 'axios';
 import cache from "../utils/cacheData.js";
 
-// axios 代理 fetch，支持超时
 const parser = new Parser({
-  requestOptions: {
-    timeout: 5000,
-  },
   customFetch: async (url, options) => {
-    const res = await axios.get(url, { timeout: 5000, responseType: 'text' }); // 修改这里
+    const res = await axios.get(url, { timeout: 5000, responseType: 'text' });
     return {
       ok: true,
       status: res.status,
@@ -21,7 +17,6 @@ const parser = new Parser({
   }
 });
 
-// 调用路径
 const url_list = JSON.parse(process.env.RSS_URL || '[]');
 
 function sortByGmtDate(items, dateField = 'date', ascending = true) {
@@ -32,40 +27,44 @@ function sortByGmtDate(items, dateField = 'date', ascending = true) {
   });
 }
 
-export default (router) => {
-  router.get("/rss", async (ctx) => {
-    const cacheKey = "rss_list_cache";
-    let data = await cache.get(cacheKey);
-    if (data) {
-      ctx.body = data;
-      return;
-    }
+export default async (req, res) => {
+  if (req.method !== 'GET') {
+    res.statusCode = 405;
+    res.end('Method Not Allowed');
+    return;
+  }
 
-    // 并发抓取所有源
-    const results = await Promise.allSettled(
-      url_list.map(url =>
-        parser.parseURL(url).then(feed =>
-          feed.items.map(item => ({
-            "title": item.title || '',
-            "author": feed.title || '',
-            "date": item.pubDate || '',
-            "link": item.link || '',
-            "content": item.contentSnippet || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
-          }))
-        )
+  const cacheKey = "rss_list_cache";
+  let data = await cache.get(cacheKey);
+  if (data) {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
+    return;
+  }
+
+  const results = await Promise.allSettled(
+    url_list.map(url =>
+      parser.parseURL(url).then(feed =>
+        feed.items.map(item => ({
+          "title": item.title || '',
+          "author": feed.title || '',
+          "date": item.pubDate || '',
+          "link": item.link || '',
+          "content": item.contentSnippet || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
+        }))
       )
-    );
+    )
+  );
 
-    // 合并所有成功的结果
-    let rss_list = [];
-    for (const r of results) {
-      if (r.status === 'fulfilled') {
-        rss_list.push(...r.value);
-      }
+  let rss_list = [];
+  for (const r of results) {
+    if (r.status === 'fulfilled') {
+      rss_list.push(...r.value);
     }
+  }
 
-    let rss_list_new = sortByGmtDate(rss_list, 'date', false);
-    await cache.set(cacheKey, rss_list_new);
-    ctx.body = rss_list_new;
-  });
+  let rss_list_new = sortByGmtDate(rss_list, 'date', false);
+  await cache.set(cacheKey, rss_list_new);
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(rss_list_new));
 };
