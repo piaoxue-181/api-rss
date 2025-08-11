@@ -4,10 +4,12 @@ const bodyParser = require("koa-bodyparser");
 const cors = require("koa2-cors");
 const serve = require("koa-static");
 const views = require("koa-views");
+const serverless = require('serverless-http');
+const Router = require('koa-router');
+const routes = require('./routes');
 
 const app = new Koa();
-const net = require("net");
-const router = require("./routes");
+const router = new Router();
 
 // 配置信息
 let domain = process.env.ALLOWED_DOMAIN || "*";
@@ -44,6 +46,7 @@ app.use(async (ctx, next) => {
 });
 
 // 使用路由中间件
+routes(router);
 app.use(router.routes());
 app.use(router.allowedMethods());
 
@@ -87,3 +90,5 @@ const tryStartApp = async (port) => {
 };
 
 tryStartApp(port);
+
+module.exports = serverless(app);
