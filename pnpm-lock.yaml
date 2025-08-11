@@ -18,14 +18,14 @@ importers:
         specifier: ^16.0.3
         version: 16.6.1
       koa:
-        specifier: ^2.14.1
+        specifier: ^2.14.2
         version: 2.16.2
       koa-bodyparser:
         specifier: ^4.3.0
         version: 4.4.1
       koa-router:
-        specifier: ^12.0.0
-        version: 12.0.1
+        specifier: ^10.1.1
+        version: 10.1.1
       koa-static:
         specifier: ^5.0.0
         version: 5.0.0
@@ -44,6 +44,9 @@ importers:
       rss-parser:
         specifier: ^3.13.0
         version: 3.13.0
+      serverless-http:
+        specifier: ^3.0.0
+        version: 3.2.0
 
 packages:
 
@@ -658,9 +661,9 @@ packages:
     resolution: {integrity: sha512-asOvN6bFlSnxewce2e/DK3p4tltyfC4VM7ZwuTuepI7dEQVcvpyFuBcEARu1+Hxg8DIwytce2n7jrZtRlPrARA==}
     engines: {node: '>= 10'}
 
-  koa-router@12.0.1:
-    resolution: {integrity: sha512-gaDdj3GtzoLoeosacd50kBBTnnh3B9AYxDThQUo4sfUyXdOhY6ku1qyZKW88tQCRgc3Sw6ChXYXWZwwgjOxE0w==}
-    engines: {node: '>= 12'}
+  koa-router@10.1.1:
+    resolution: {integrity: sha512-z/OzxVjf5NyuNO3t9nJpx7e1oR3FSBAauiwXtMQu4ppcnuNZzTaQ4p21P8A6r2Es8uJJM339oc4oVW+qX7SqnQ==}
+    engines: {node: '>= 8.0.0'}
     deprecated: Please use @koa/router instead of koa-router. This is the same package maintained by the same people, but under the Koa team's control on GitHub. Versioning is identical and it is a drop-in replacement. Maintenance is supported by Forward Email @ https://forwardemail.net
 
   koa-send@5.0.1:
@@ -865,6 +868,10 @@ packages:
     resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
     engines: {node: '>=10'}
     hasBin: true
+
+  serverless-http@3.2.0:
+    resolution: {integrity: sha512-QvSyZXljRLIGqwcJ4xsKJXwkZnAVkse1OajepxfjkBXV0BMvRS5R546Z4kCBI8IygDzkQY0foNPC/rnipaE9pQ==}
+    engines: {node: '>=12.0'}
 
   setprototypeof@1.1.0:
     resolution: {integrity: sha512-BvE/TwpZX4FXExxOxZyRGQQv651MSwmWKZGqvmPcRIjDqWub67kTKuIMx43cZZrS/cBBzwBcNDWoFxt2XEFIpQ==}
@@ -1471,10 +1478,10 @@ snapshots:
       co: 4.6.0
       koa-compose: 4.1.0
 
-  koa-router@12.0.1:
+  koa-router@10.1.1:
     dependencies:
       debug: 4.4.1
-      http-errors: 2.0.0
+      http-errors: 1.8.1
       koa-compose: 4.1.0
       methods: 1.1.2
       path-to-regexp: 6.3.0
@@ -1743,6 +1750,8 @@ snapshots:
   semver@7.0.0: {}
 
   semver@7.7.2: {}
+
+  serverless-http@3.2.0: {}
 
   setprototypeof@1.1.0: {}
 
