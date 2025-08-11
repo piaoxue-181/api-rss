@@ -2,8 +2,6 @@ require("dotenv").config();
 const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
 const cors = require("koa2-cors");
-const serve = require("koa-static");
-const views = require("koa-views");
 const Router = require("koa-router");
 const routes = require("./routes");
 const serverless = require("serverless-http");
@@ -16,10 +14,6 @@ let domain = process.env.ALLOWED_DOMAIN || "*";
 
 // 解析请求体
 app.use(bodyParser());
-
-// 静态文件目录
-app.use(serve(__dirname + "/public"));
-app.use(views(__dirname + "/public"));
 
 // 跨域
 app.use(

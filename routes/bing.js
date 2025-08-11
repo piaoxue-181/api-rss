@@ -15,9 +15,9 @@ const fs = require("fs");
 const path = require("path");
 
 // 本地图片缓存目录
-const cacheDir = path.join(process.cwd(), "images");
+const cacheDir = path.join('/tmp', 'images');
 if (!fs.existsSync(cacheDir)) {
-  fs.mkdirSync(cacheDir);
+  fs.mkdirSync(cacheDir, { recursive: true });
 }
 
 // 调用时间
