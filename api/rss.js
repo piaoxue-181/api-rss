@@ -28,23 +28,28 @@ module.exports = (router) => {
       return;
     }
     for (const url of url_list) {
-      let feed = await parser.parseURL(url);
-      feed.items.forEach(item => {
-        let snippet = '';
-        if (item.contentSnippet) {
-          snippet = item.contentSnippet;
-        } else if (item.content) {
-          const plain = item.content.replace(/<[^>]+>/g, '');
-          snippet = plain.length > 200 ? plain.substring(0, 200) + '...' : plain;
-        }
-        rss_list.push({
-          "title": item.title || '',
-          "author": feed.title || '',
-          "date": item.pubDate || '',
-          "link": item.link || '',
-          "content": snippet
+      try {
+        let feed = await parser.parseURL(url, { timeout: 5000 }); // rss-parser 本身不支持 timeout，可用 axios 代理
+        feed.items.forEach(item => {
+          let snippet = '';
+          if (item.contentSnippet) {
+            snippet = item.contentSnippet;
+          } else if (item.content) {
+            const plain = item.content.replace(/<[^>]+>/g, '');
+            snippet = plain.length > 200 ? plain.substring(0, 200) + '...' : plain;
+          }
+          rss_list.push({
+            "title": item.title || '',
+            "author": feed.title || '',
+            "date": item.pubDate || '',
+            "link": item.link || '',
+            "content": snippet
+          });
         });
-      });
+      } catch (err) {
+        // 跳过超时或错误的源
+        continue;
+      }
     }
     let rss_list_new = sortByGmtDate(rss_list, 'date', false);
     await set(cacheKey, rss_list_new);
