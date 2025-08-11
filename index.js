@@ -51,5 +51,3 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 module.exports = serverless(app);
-
-tryStartApp(port);
