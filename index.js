@@ -4,10 +4,12 @@ const bodyParser = require("koa-bodyparser");
 const cors = require("koa2-cors");
 const serve = require("koa-static");
 const views = require("koa-views");
+const Router = require("koa-router");
+const routes = require("./routes");
+const serverless = require("serverless-http");
 
 const app = new Koa();
-const net = require("net");
-const router = require("./routes");
+const router = new Router();
 
 // 配置信息
 let domain = process.env.ALLOWED_DOMAIN || "*";
@@ -44,46 +46,10 @@ app.use(async (ctx, next) => {
 });
 
 // 使用路由中间件
+routes(router);
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-// 启动应用程序并监听端口
-const startApp = (port) => {
-  app.listen(port, () => {
-    console.log(`成功在 ${port} 端口上运行`);
-  });
-};
-
-// 检测端口是否被占用
-const checkPort = (port) => {
-  return new Promise((resolve, reject) => {
-    const server = net
-      .createServer()
-      .once("error", (err) => {
-        if (err.code === "EADDRINUSE") {
-          console.log(`端口 ${port} 已被占用, 正在尝试其他端口...`);
-          server.close();
-          resolve(false);
-        } else {
-          reject(err);
-        }
-      })
-      .once("listening", () => {
-        server.close();
-        resolve(true);
-      })
-      .listen(port);
-  });
-};
-
-// 尝试启动应用程序
-const tryStartApp = async (port) => {
-  let isPortAvailable = await checkPort(port);
-  while (!isPortAvailable) {
-    port++;
-    isPortAvailable = await checkPort(port);
-  }
-  startApp(port);
-};
+module.exports = serverless(app);
 
 tryStartApp(port);
