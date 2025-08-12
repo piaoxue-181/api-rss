@@ -1,4 +1,4 @@
-import NodeCache from "node-cache";
+const NodeCache = require("node-cache");
 
 const cache = new NodeCache({
   stdTTL: 1800, // 缓存默认过期时间（单位秒）
@@ -34,7 +34,7 @@ const del = async (key) => {
   return cache.del(key);
 };
 
-export default {
+module.exports = {
   get,
   set,
   del,
