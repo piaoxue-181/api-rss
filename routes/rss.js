@@ -1,20 +1,21 @@
 /**
- * 爬取RSS
+ * 爬取RSS订阅
  */
 
-import Parser from 'rss-parser';
-import axios from 'axios'; // 修改这里
-import { get, set } from "../utils/cacheData.js";
-import Router from "koa-router";
+const { get, set } = require("../utils/cacheData");
+const Parser = require('rss-parser');
+const Router = require("koa-router");
+const axios = require('axios'); // 新增
 const rssRouter = new Router();
 
-// axios 代理 fetch，支持超时
+const url_list = JSON.parse(process.env.RSS_URL || '[]');
+
 const parser = new Parser({
   requestOptions: {
     timeout: 5000,
   },
   customFetch: async (url, _options) => {
-    const res = await axios.get(url, { timeout: 5000, responseType: 'text' }); // 修改这里
+    const res = await axios.get(url, { timeout: 5000, responseType: 'text' });
     return {
       ok: true,
       status: res.status,
@@ -22,9 +23,6 @@ const parser = new Parser({
     };
   }
 });
-
-// 调用路径
-const url_list = JSON.parse(process.env.RSS_URL || '[]');
 
 function sortByGmtDate(items, dateField = 'date', ascending = true) {
   return [...items].sort((a, b) => {
@@ -35,10 +33,11 @@ function sortByGmtDate(items, dateField = 'date', ascending = true) {
 }
 
 rssRouter.get("/rss", async (ctx) => {
+  const { limit = 10 } = ctx.query;
   const cacheKey = "rss_list_cache";
   let data = await get(cacheKey);
   if (data) {
-    ctx.body = data;
+    ctx.body = data.slice(0, limit); // 优化：返回前limit条
     return;
   }
 
@@ -49,7 +48,7 @@ rssRouter.get("/rss", async (ctx) => {
         feed.items.map(item => ({
           "title": item.title || '',
           "auther": feed.title || '',
-          "date": item.pubDate || '',
+          "date": item.pubDate ? new Date(item.pubDate).toISOString().replace(/\.\d{3}Z$/, 'Z') : '',
           "link": item.link || '',
           "content": item.contentSnippet || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
         }))
@@ -57,7 +56,6 @@ rssRouter.get("/rss", async (ctx) => {
     )
   );
 
-  // 合并所有成功的结果
   let rss_list = [];
   for (const r of results) {
     if (r.status === 'fulfilled') {
@@ -66,8 +64,8 @@ rssRouter.get("/rss", async (ctx) => {
   }
 
   let rss_list_new = sortByGmtDate(rss_list, 'date', false);
-  await set(cacheKey, rss_list_new);
-  ctx.body = rss_list_new;
+  await set(cacheKey, rss_list_new, 60 * 10); // 设置缓存10分钟
+  ctx.body = rss_list_new.slice(0, limit); // 返回前limit条
 });
 
-export default rssRouter;
+module.exports = rssRouter;
