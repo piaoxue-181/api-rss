@@ -45,13 +45,7 @@ rssRouter.get("/rss", async (ctx) => {
   const results = await Promise.allSettled(
     url_list.map(url =>
       parser.parseURL(url).then(feed =>
-        feed.items.map(item => ({
-          "title": item.title || '',
-          "auther": feed.title || '',
-          // 转换为东八区（UTC+8）时间字符串，格式为YYYY-MM-DD HH:mm:ss
-          "date": item.pubDate ? formatDateToCST(item.pubDate) : '',
-          "link": item.link || '',
-          "content": item.contentSnippet || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
+        feed.items.map(item => ({"title": item.title || '',"auther": feed.title || '',"date": item.pubDate ? formatDateToCST(item.pubDate) : '',"link": item.link || '',"content": item.contentSnippet || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
         }))
       )
     )
