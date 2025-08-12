@@ -48,7 +48,7 @@ rssRouter.get("/rss", async (ctx) => {
       parser.parseURL(url).then(feed =>
         feed.items.map(item => ({
           "title": item.title || '',
-          "author": feed.title || '',
+          "auther": feed.title || '',
           "date": item.pubDate || '',
           "link": item.link || '',
           "content": item.contentSnippet || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
