@@ -48,8 +48,8 @@ rssRouter.get("/rss", async (ctx) => {
         feed.items.map(item => ({
           "title": item.title || '',
           "auther": feed.title || '',
-          // 转换为东八区（UTC+8）时间字符串
-          "date": item.pubDate ? new Date(new Date(item.pubDate).getTime() + 8 * 60 * 60 * 1000).toISOString().replace(/\.\d{3}Z$/, 'Z') : '',
+          // 转换为东八区（UTC+8）时间字符串，格式为YYYY-MM-DD HH:mm:ss
+          "date": item.pubDate ? formatDateToCST(item.pubDate) : '',
           "link": item.link || '',
           "content": item.contentSnippet || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
         }))
@@ -68,5 +68,16 @@ rssRouter.get("/rss", async (ctx) => {
   await set(cacheKey, rss_list_new, 60 * 10); // 设置缓存10分钟
   ctx.body = rss_list_new.slice(0, limit); // 返回前limit条
 });
+
+
+// 格式化为 2025-06-24 21:16:16（东八区）
+function formatDateToCST(dateStr) {
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+  // 转为东八区
+  const cstDate = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  const pad = n => n.toString().padStart(2, '0');
+  return `${cstDate.getFullYear()}-${pad(cstDate.getMonth() + 1)}-${pad(cstDate.getDate())} ${pad(cstDate.getHours())}:${pad(cstDate.getMinutes())}:${pad(cstDate.getSeconds())}`;
+}
 
 module.exports = rssRouter;
