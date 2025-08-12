@@ -33,7 +33,7 @@ function sortByGmtDate(items, dateField = 'date', ascending = true) {
 }
 
 rssRouter.get("/rss", async (ctx) => {
-  const { limit } = ctx.query;
+  const { limit = 35 } = ctx.query;
   const cacheKey = "rss_list_cache";
   let data = await get(cacheKey);
   if (data) {
