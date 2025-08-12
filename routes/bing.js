@@ -136,10 +136,10 @@ bingRouter.get("/bing/image", async (ctx) => {
   }
 });
 
-// 本地图片缓存目录
-const cacheDir = path.join(process.cwd(), "images");
+// 本地图片缓存目录（无服务器环境只能写 /tmp）
+const cacheDir = '/tmp/images';
 if (!fs.existsSync(cacheDir)) {
-  fs.mkdirSync(cacheDir);
+  fs.mkdirSync(cacheDir, { recursive: true });
 }
 
 // 数据处理
