@@ -10,7 +10,17 @@ const net = require("net");
 const router = require("./routes");
 
 // 配置信息
-let domain = process.env.ALLOWED_DOMAIN || "*";
+let domain = (() => {
+  if (!process.env.ALLOWED_DOMAIN) return '*';
+  try {
+    const parsed = JSON.parse(process.env.ALLOWED_DOMAIN);
+    if (Array.isArray(parsed)) return parsed;
+    if (typeof parsed === 'string') return [parsed];
+    return '*';
+  } catch {
+    return process.env.ALLOWED_DOMAIN;
+  }
+})();
 let port = process.env.PORT || 6688;
 
 // 解析请求体
@@ -23,15 +33,23 @@ app.use(views(__dirname + "/public"));
 // 跨域
 app.use(
   cors({
-    origin: domain,
+    origin: (ctx) => {
+      if (domain === '*') return '*';
+      const allowList = Array.isArray(domain) ? domain : [domain];
+      const reqOrigin = ctx.headers.origin || ctx.headers.referer || '';
+      if (allowList.includes(reqOrigin)) return reqOrigin;
+      return false;
+    },
   })
 );
 
 app.use(async (ctx, next) => {
-  if (domain === "*") {
+  if (domain === '*') {
     await next();
   } else {
-    if (ctx.headers.origin === domain || ctx.headers.referer === domain) {
+    const allowList = Array.isArray(domain) ? domain : [domain];
+    const reqOrigin = ctx.headers.origin || ctx.headers.referer || '';
+    if (allowList.includes(reqOrigin)) {
       await next();
     } else {
       ctx.status = 403;
