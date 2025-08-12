@@ -37,7 +37,14 @@ app.use(
       if (domain === '*') return '*';
       const allowList = Array.isArray(domain) ? domain : [domain];
       const reqOrigin = ctx.headers.origin || ctx.headers.referer || '';
-      if (allowList.includes(reqOrigin)) return reqOrigin;
+      // 提取主机名部分
+      let reqHost = '';
+      try {
+        reqHost = new URL(reqOrigin).hostname;
+      } catch {
+        reqHost = reqOrigin.replace(/^https?:\/\//, '').split('/')[0].split(':')[0];
+      }
+      if (allowList.includes(reqHost)) return reqOrigin;
       return false;
     },
   })
@@ -49,7 +56,13 @@ app.use(async (ctx, next) => {
   } else {
     const allowList = Array.isArray(domain) ? domain : [domain];
     const reqOrigin = ctx.headers.origin || ctx.headers.referer || '';
-    if (allowList.includes(reqOrigin)) {
+    let reqHost = '';
+    try {
+      reqHost = new URL(reqOrigin).hostname;
+    } catch {
+      reqHost = reqOrigin.replace(/^https?:\/\//, '').split('/')[0].split(':')[0];
+    }
+    if (allowList.includes(reqHost)) {
       await next();
     } else {
       ctx.status = 403;
