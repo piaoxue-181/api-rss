@@ -1,13 +1,13 @@
-require("dotenv").config();
-const Koa = require("koa");
-const bodyParser = require("koa-bodyparser");
-const cors = require("koa2-cors");
-const serve = require("koa-static");
-const views = require("koa-views");
+import "dotenv/config";
+import Koa from "koa";
+import bodyParser from "koa-bodyparser";
+import cors from "koa2-cors";
+import serve from "koa-static";
+import views from "koa-views";
+import net from "net";
+import router from "./routes/index.js"; // 用 import
 
 const app = new Koa();
-const net = require("net");
-const router = require("./routes");
 
 // 配置信息
 let domain = process.env.ALLOWED_DOMAIN || "*";
@@ -17,8 +17,8 @@ let port = process.env.PORT || 6688;
 app.use(bodyParser());
 
 // 静态文件目录
-app.use(serve(__dirname + "/public"));
-app.use(views(__dirname + "/public"));
+app.use(serve(process.cwd() + "/public"));
+app.use(views(process.cwd() + "/public"));
 
 // 跨域
 app.use(

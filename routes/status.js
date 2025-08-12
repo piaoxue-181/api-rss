@@ -2,9 +2,9 @@
  * 反代 Uptimerobot API
  */
 
-const Router = require("koa-router");
+import Router from "koa-router";
 const statusRouter = new Router();
-const axios = require("axios");
+import axios from "axios";
 
 // 调用路径
 const url = "https://api.uptimerobot.com/v2/getMonitors";
@@ -39,4 +39,4 @@ statusRouter.post("/status", async (ctx) => {
   }
 });
 
-module.exports = statusRouter;
+export default statusRouter;
