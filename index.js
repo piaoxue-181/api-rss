@@ -35,9 +35,15 @@ app.use(
   cors({
     origin: (ctx) => {
       if (domain === '*') return '*';
-      const allowList = Array.isArray(domain) ? domain : [domain];
+      // 统一 allowList 为主机名数组
+      const allowList = (Array.isArray(domain) ? domain : [domain]).map(d => {
+        try {
+          return new URL(d).hostname;
+        } catch {
+          return d.replace(/^https?:\/\//, '').split('/')[0].split(':')[0];
+        }
+      });
       const reqOrigin = ctx.headers.origin || ctx.headers.referer || '';
-      // 提取主机名部分
       let reqHost = '';
       try {
         reqHost = new URL(reqOrigin).hostname;
@@ -54,7 +60,13 @@ app.use(async (ctx, next) => {
   if (domain === '*') {
     await next();
   } else {
-    const allowList = Array.isArray(domain) ? domain : [domain];
+    const allowList = (Array.isArray(domain) ? domain : [domain]).map(d => {
+      try {
+        return new URL(d).hostname;
+      } catch {
+        return d.replace(/^https?:\/\//, '').split('/')[0].split(':')[0];
+      }
+    });
     const reqOrigin = ctx.headers.origin || ctx.headers.referer || '';
     let reqHost = '';
     try {
