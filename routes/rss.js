@@ -51,7 +51,7 @@ rssRouter.get("/rss", async (ctx) => {
           // 转换为东八区（UTC+8）时间字符串，格式为YYYY-MM-DD HH:mm:ss
           "date": item.pubDate ? formatDateToCST(item.pubDate) : '',
           "link": item.link || '',
-          "content": item.contentSnippet || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
+          "content": item.contentSnippet.replace(/</g, '&lt;').replace(/>/g, '&gt;') || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
         }))
       )
     )
