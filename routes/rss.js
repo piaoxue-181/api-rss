@@ -5,6 +5,7 @@
 const { get, set } = require("../utils/cacheData");
 const Parser = require('rss-parser');
 const Router = require("koa-router");
+const cheerio = require('cheerio');
 const axios = require('axios'); // 新增
 const rssRouter = new Router();
 
@@ -24,6 +25,32 @@ const parser = new Parser({
   }
 });
 
+async function getFaviconPathFromHtml(url) {
+  try {
+    const response = await axios.get(url);
+    const $ = cheerio.load(response.data);
+    // 查找 rel 为 icon 的 link 标签
+    const iconLink = $('link[rel="icon"], link[rel="shortcut icon"]').attr('href');
+    if (iconLink) {
+      return new URL(iconLink, url).href; // 拼接完整 URL
+    }
+    // 未找到则返回默认路径
+    return new URL('/favicon.ico', url).href;
+  } catch (error) {
+    console.error('解析 HTML 失败：', error.message);
+    return new URL('/favicon.ico', url).href;
+  }
+}
+
+// 提取URL中的主域名
+function getDomainFromUrl(url) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return '';
+  }
+}
+
 function sortByGmtDate(items, dateField = 'date', ascending = true) {
   return [...items].sort((a, b) => {
     const timeA = a[dateField] ? new Date(a[dateField]).getTime() : 0;
@@ -32,29 +59,45 @@ function sortByGmtDate(items, dateField = 'date', ascending = true) {
   });
 }
 
+
 rssRouter.get("/rss", async (ctx) => {
   const { limit = 36 } = ctx.query;
   const cacheKey = "rss_list_cache";
   let data = await get(cacheKey);
   if (data) {
-    ctx.body = data.slice(0, limit); // 优化：返回前limit条
+    ctx.body = data.slice(0, limit);
     return;
   }
 
   // 并发抓取所有源
   const results = await Promise.allSettled(
-    url_list.map(url =>
-      parser.parseURL(url).then(feed =>
-        feed.items.map(item => ({
-          "title": item.title || '',
-          "auther": feed.title || '',
-          // 转换为东八区（UTC+8）时间字符串，格式为YYYY-MM-DD HH:mm:ss
-          "date": item.pubDate ? formatDateToCST(item.pubDate) : '',
-          "link": item.link || '',
-          "content": item.contentSnippet.replace(/</g, '&lt;').replace(/>/g, '&gt;') || (item.content ? (item.content.replace(/<[^>]+>/g, '').substring(0, 200) + '...') : '')
-        }))
-      )
-    )
+    url_list.map(async url => {
+      const feed = await parser.parseURL(url);
+      // 获取站点favicon
+      let favicon = '';
+      try {
+        favicon = await getFaviconPathFromHtml(url);
+      } catch {
+        favicon = '';
+      }
+      return feed.items.map(item => ({
+        "title": item.title || '',
+        "auther": feed.title || '',
+        "date": item.pubDate ? formatDateToCST(item.pubDate) : '',
+        "link": item.link || '',
+        "domain": getDomainFromUrl(item.link || ''),
+        "image_ico": favicon,
+        "content": item.contentSnippet
+          ? item.contentSnippet.replace(/</g, '&lt;').replace(/>/g, '&gt;').substring(0, 200)
+          : (item.content
+              ? item.content
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/&lt;[^&gt;]+&gt;/g, '')
+                  .substring(0, 200) + '...'
+              : ''),
+      }));
+    })
   );
 
   let rss_list = [];
@@ -65,8 +108,8 @@ rssRouter.get("/rss", async (ctx) => {
   }
 
   let rss_list_new = sortByGmtDate(rss_list, 'date', false);
-  await set(cacheKey, rss_list_new, 60 * 10); // 设置缓存10分钟
-  ctx.body = rss_list_new.slice(0, limit); // 返回前limit条
+  await set(cacheKey, rss_list_new, 60 * 10);
+  ctx.body = rss_list_new.slice(0, limit);
 });
 
 
