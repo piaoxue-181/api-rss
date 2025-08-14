@@ -9,3 +9,5 @@ const friendRouter = new Router();
 friendRouter.get("/friend", async (ctx) => {
     return await get_query();
 });
+
+module.exports = friendRouter;

@@ -49,4 +49,6 @@ dplayerRouter.post("/v3", async (ctx) => {
             msg: `Database error: ${err}`,
         });
     }
-})
+});
+
+module.exports = dplayerRouter;
