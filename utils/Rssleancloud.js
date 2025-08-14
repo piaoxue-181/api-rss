@@ -1,8 +1,8 @@
 const AV = require('leancloud-storage');
 
-const appid = process.env.APP_ID;
-const appkey = process.env.APP_KEY;
-const serverURL = process.env.SERVERURL;
+const appid = process.env.APP_ID_FRIEND;
+const appkey = process.env.APP_KEY_FRIEND;
+const serverURL = process.env.SERVERURL_FRIEND;
 
 // 初始化 LeanCloud 连接
 AV.init({

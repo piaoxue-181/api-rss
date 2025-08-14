@@ -3,7 +3,7 @@
  */
 
 const { get, set } = require("../utils/cacheData");
-const { get_query } = require("../utils/leancloud");
+const { get_query } = require("../utils/Rssleancloud");
 const Parser = require('rss-parser');
 const Router = require("koa-router");
 const cheerio = require('cheerio');
