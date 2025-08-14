@@ -3,13 +3,12 @@
  */
 
 const { get, set } = require("../utils/cacheData");
+const { get_query } = require("../utils/leancloud");
 const Parser = require('rss-parser');
 const Router = require("koa-router");
 const cheerio = require('cheerio');
 const axios = require('axios'); // 新增
 const rssRouter = new Router();
-
-const url_list = JSON.parse(process.env.RSS_URL || '[]');
 
 const parser = new Parser({
   requestOptions: {
@@ -63,6 +62,7 @@ function sortByGmtDate(items, dateField = 'date', ascending = true) {
 rssRouter.get("/rss", async (ctx) => {
   const { limit = 36 } = ctx.query;
   const cacheKey = "rss_list_cache";
+  const url_list = await get_query();
   let data = await get(cacheKey);
   if (data) {
     ctx.body = data.slice(0, limit);
@@ -72,11 +72,11 @@ rssRouter.get("/rss", async (ctx) => {
   // 并发抓取所有源
   const results = await Promise.allSettled(
     url_list.map(async url => {
-      const feed = await parser.parseURL(url);
+      const feed = await parser.parseURL(url["rss"]);
       // 获取站点favicon
       let favicon = '';
       try {
-        favicon = await getFaviconPathFromHtml(url);
+        favicon = await getFaviconPathFromHtml(url["rss"]);
       } catch {
         favicon = '';
       }
@@ -88,7 +88,7 @@ rssRouter.get("/rss", async (ctx) => {
         "domain": getDomainFromUrl(item.link || ''),
         "image_ico": favicon,
         "content": item.contentSnippet
-          ? item.contentSnippet.replace(/</g, '&lt;').replace(/>/g, '&gt;').substring(0, 200)
+          ? item.contentSnippet.replace(/</g, '&lt;').replace(/>/g, '&gt;').substring(0, 200) + '...'
           : (item.content
               ? item.content
                   .replace(/</g, '&lt;')
@@ -108,7 +108,7 @@ rssRouter.get("/rss", async (ctx) => {
   }
 
   let rss_list_new = sortByGmtDate(rss_list, 'date', false);
-  await set(cacheKey, rss_list_new, 60 * 10);
+  await set(cacheKey, rss_list_new, 60 * 60 * 24);
   ctx.body = rss_list_new.slice(0, limit);
 });
 

@@ -21,6 +21,7 @@
     "koa-static": "^5.0.0",
     "koa-views": "^8.0.0",
     "koa2-cors": "^2.0.6",
+    "leancloud-storage": "^4.15.2",
     "node-cache": "^5.1.2",
     "nodemon": "^2.0.22",
     "rss-parser": "^3.13.0"
