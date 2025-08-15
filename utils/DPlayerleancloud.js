@@ -9,7 +9,7 @@ const dplayerAppId = process.env.APP_ID_DPLAYER;
 const dplayer_create = async function createData(list) {
   try {
     const dplayer_read = useApp(dplayerAppId);
-    const DPlayer = dplayer_read.Object.extend('DPlayer');
+    const DPlayer = dplayer_read.Object.extend('DPlayer_' + id);
     const dplayerObj = new DPlayer(); // 避免变量名冲突
     
     dplayerObj.set('player', list.player);
