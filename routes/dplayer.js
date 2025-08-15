@@ -16,10 +16,9 @@ function htmlEncode (str) {
 }
 
 dplayerRouter.get("/v3/", async (ctx) => {
-    const { id, limit } = ctx.request.query;
+    const { id } = ctx.request.query;
     try{
         let data = await dplayer_query(id);
-        data = JSON.parse(data).slice(-1 * parseInt(limit));
         ctx.body = JSON.stringify({
             code: 0,
             data: data.map((item) => [item.time || 0, item.type || 0, item.color || 16777215, htmlEncode(item.author) || 'DPlayer', htmlEncode(item.text) || '']),
