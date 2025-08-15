@@ -2,13 +2,13 @@ const { useApp } = require('./leancloud-manager');
 const dplayerAppId = process.env.APP_ID_DPLAYER;
 
 // 切换到 DPlayer 应用（仅切换配置，不初始化）
-const dplayer_read = useApp(dplayerAppId);
 
 /**
  * 创建并保存一条数据
  */
 const dplayer_create = async function createData(list) {
   try {
+    const dplayer_read = useApp(dplayerAppId);
     const DPlayer = dplayer_read.Object.extend('DPlayer');
     const dplayerObj = new DPlayer(); // 避免变量名冲突
     
@@ -36,6 +36,7 @@ const dplayer_create = async function createData(list) {
  */
 const dplayer_query = async function queryData(id) {
   try {
+    const dplayer_read = useApp(dplayerAppId);
     const query = new dplayer_read.Query('DPlayer_' + id);
     query.descending('time');
     const results = await query.find();

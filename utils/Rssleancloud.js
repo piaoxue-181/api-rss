@@ -2,13 +2,13 @@ const { useApp } = require('./leancloud-manager');
 const friendAppId = process.env.APP_ID_FRIEND;
 
 // 切换到 Friend 应用（仅切换配置，不初始化）
-const friend = useApp(friendAppId);
 
 /**
  * 创建并保存一条数据
  */
 const get_create = async function createData(name, link, rss, avatar, descr) {
   try {
+    const rss_read = useApp(friendAppId);
     const Friend = rss_read.Object.extend('Friend');
     const friend = new Friend();
     
@@ -32,6 +32,7 @@ const get_create = async function createData(name, link, rss, avatar, descr) {
  */
 const get_query = async function queryData() {
   try {
+    const rss_read = useApp(friendAppId);
     const query = new rss_read.Query('Friend');
     query.descending('time'); // 按时间降序排序
     const results = await query.find();
@@ -62,7 +63,8 @@ const get_query = async function queryData() {
  */
 const get_update = async function updateData(objectId, name, link, rss, avatar, descr) {
   try {
-    const friend = rss.Object.createWithoutData('Friend', objectId);
+    const rss_read = useApp(friendAppId);
+    const friend = rss_read.Object.createWithoutData('Friend', objectId);
     friend.set('name', name);
     friend.set('link', link);
     friend.set('rss', rss);
@@ -82,7 +84,8 @@ const get_update = async function updateData(objectId, name, link, rss, avatar, 
  */
 const get_del = async function deleteData(objectId) {
   try {
-    const friend = rss.Object.createWithoutData('Friend', objectId);
+    const rss_read = useApp(friendAppId);
+    const friend = rss_read.Object.createWithoutData('Friend', objectId);
     await friend.destroy();
     console.log(`ID为 ${objectId} 的数据删除成功`);
     return true;
