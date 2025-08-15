@@ -4,7 +4,7 @@ const bodyParser = require("koa-bodyparser");
 const cors = require("koa2-cors");
 const serve = require("koa-static");
 const views = require("koa-views");
-
+require('./utils/leancloud-init');
 const app = new Koa();
 const net = require("net");
 const router = require("./routes");

@@ -1,4 +1,8 @@
-const rss_read = require('./leancloud-friend');
+const { useApp } = require('./leancloud-manager');
+const friendAppId = process.env.APP_ID_FRIEND;
+
+// 切换到 Friend 应用（仅切换配置，不初始化）
+const friend = useApp(friendAppId);
 
 /**
  * 创建并保存一条数据

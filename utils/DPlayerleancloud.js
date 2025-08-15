@@ -1,4 +1,8 @@
-const dplayer_read = require('./leancloud-dplayer');
+const { useApp } = require('./leancloud-manager');
+const dplayerAppId = process.env.APP_ID_DPLAYER;
+
+// 切换到 DPlayer 应用（仅切换配置，不初始化）
+const dplayer_read = useApp(dplayerAppId);
 
 /**
  * 创建并保存一条数据
