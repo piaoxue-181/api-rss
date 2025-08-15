@@ -1,7 +1,18 @@
 const { useApp } = require('./leancloud-manager');
 const dplayerAppId = process.env.APP_ID_DPLAYER;
+const crypto = require('crypto'); // Node.js 内置模块，无需额外安装
 
-// 切换到 DPlayer 应用（仅切换配置，不初始化）
+/**
+ * 将 URL 转换为合法的类名（使用 MD5 哈希，取前 16 位）
+ * @param {string} url - 原始 URL
+ * @returns {string} 合法的类名前缀
+ */
+function getValidClassName(url) {
+  // 对 URL 进行 MD5 哈希，转换为 32 位十六进制字符串
+  const hash = crypto.createHash('md5').update(url).digest('hex');
+  // 取前 16 位避免类名过长，拼接前缀 "DPlayer_"
+  return `DPlayer_${hash.slice(0, 16)}`;
+}
 
 /**
  * 创建并保存一条数据
@@ -9,7 +20,7 @@ const dplayerAppId = process.env.APP_ID_DPLAYER;
 const dplayer_create = async function createData(list) {
   try {
     const dplayer_read = useApp(dplayerAppId);
-    const DPlayer = dplayer_read.Object.extend('DPlayer_' + list.player);
+    const DPlayer = dplayer_read.Object.extend('DPlayer_' + getValidClassName(list.player));
     const dplayerObj = new DPlayer(); // 避免变量名冲突
     
     dplayerObj.set('player', list.player.replace('_blog', ''));
@@ -37,7 +48,7 @@ const dplayer_create = async function createData(list) {
 const dplayer_query = async function queryData(id) {
   try {
     const dplayer_read = useApp(dplayerAppId);
-    const query = new dplayer_read.Query('DPlayer_' + id);
+    const query = new dplayer_read.Query('DPlayer_' + getValidClassName(id));
     query.descending('time');
     const results = await query.find();
     
