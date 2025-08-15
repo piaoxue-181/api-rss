@@ -23,7 +23,7 @@ const dplayer_create = async function createData(list) {
     dplayerObj.set('date', list.date || new Date());
     
     const result = await dplayerObj.save();
-    console.log('数据创建成功，ID:', result.id);
+    console.log('数据创建成功，ID:', result.objectId);
     return result;
   } catch (error) {
     console.error('创建数据失败:', error);
@@ -43,7 +43,7 @@ const dplayer_query = async function queryData(id) {
     
     console.log(`查询到 ${results.length} 条数据`);
     return results.map(item => ({
-      "id": item.id,
+      "id": item.objectId,
       "player": item.get('player'),
       "author": item.get('author'),
       "time": item.get("time"),
