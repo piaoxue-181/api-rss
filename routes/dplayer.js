@@ -15,7 +15,7 @@ function htmlEncode (str) {
     .replace(/\//g, '&#x2f;') : '';
 }
 
-dplayerRouter.get("/v3", async (ctx) => {
+dplayerRouter.get("/v3/", async (ctx) => {
     const { id, limit } = ctx.request.query;
     let data = await dplayer_query(id);
     data = JSON.parse(data).slice(-1 * parseInt(limit));
@@ -25,7 +25,7 @@ dplayerRouter.get("/v3", async (ctx) => {
     });
 });
 
-dplayerRouter.post("/v3", async (ctx) => {
+dplayerRouter.post("/v3/", async (ctx) => {
     try {
         const body = ctx.request.body;
         const data = await dplayer_create({
