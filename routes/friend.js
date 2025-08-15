@@ -7,7 +7,7 @@ const Router = require("koa-router");
 const friendRouter = new Router();
 
 friendRouter.get("/friend", async (ctx) => {
-    return await get_query();
+    ctx.body = await get_query();
 });
 
 module.exports = friendRouter;
