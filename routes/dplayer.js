@@ -36,7 +36,8 @@ dplayerRouter.post("/v3/", async (ctx) => {
     try {
         const body = ctx.request.body;
         const data = await dplayer_create({
-            player: body.id,
+            id: body.id,
+            player: body.id.replace('_blog', ''),
             author: body.author,
             time: body.time,
             text: body.text,
