@@ -20,7 +20,7 @@ function getValidClassName(url) {
 const dplayer_create = async function createData(list) {
   try {
     const dplayer_read = useApp(dplayerAppId);
-    const DPlayer = dplayer_read.Object.extend('DPlayer_' + getValidClassName(list.player));
+    const DPlayer = dplayer_read.Object.extend(getValidClassName(list.player));
     const dplayerObj = new DPlayer(); // 避免变量名冲突
     
     dplayerObj.set('player', list.player.replace('_blog', ''));
@@ -48,7 +48,7 @@ const dplayer_create = async function createData(list) {
 const dplayer_query = async function queryData(id) {
   try {
     const dplayer_read = useApp(dplayerAppId);
-    const query = new dplayer_read.Query('DPlayer_' + getValidClassName(id));
+    const query = new dplayer_read.Query(getValidClassName(id));
     query.descending('time');
     const results = await query.find();
     
